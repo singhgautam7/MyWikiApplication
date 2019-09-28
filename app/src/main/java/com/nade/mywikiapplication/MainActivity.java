@@ -7,6 +7,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
@@ -38,6 +40,7 @@ public class MainActivity extends AppCompatActivity {
     private ProgressBar progressBar;
     private TextView errorTextView;
     SharedPref sharedPref;
+    SQLiteDatabase sqLiteDatabase;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,10 +56,14 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         initViews();
         themeChangeFunc();
+
     }
 
     //initialising views
     private void initViews() {
+        sqLiteDatabase = this.openOrCreateDatabase("DatabaseName", MODE_PRIVATE, null);
+        sqLiteDatabase.execSQL("CREATE TABLE IF NOT EXISTS " + "offlineWiki" + " (Field1 TEXT);");
+
         changeThemeButton = (Button) findViewById(R.id.theme_button);
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
         errorTextView = (TextView) findViewById(R.id.errorTextView);
@@ -79,6 +86,7 @@ public class MainActivity extends AppCompatActivity {
 
         JsonPlaceHolderApi jsonPlaceHolderApi = retrofit.create(JsonPlaceHolderApi.class);
         Call<WikiArticle> call = jsonPlaceHolderApi.getRandArticle();
+
         call.enqueue(new Callback<WikiArticle>() {
             @Override
             public void onResponse(Call<WikiArticle> call, Response<WikiArticle> response) {
@@ -90,19 +98,21 @@ public class MainActivity extends AppCompatActivity {
                     return;
                 }
 
+                saveOffline();
                 progressBar.setVisibility(View.GONE);
                 adapter = new DataAdapter(readRandomData);
                 recyclerView.setAdapter(adapter);
-
             }
+
             @Override
             public void onFailure(Call<WikiArticle> call, Throwable t) {
                 Log.d("Error",t.getMessage());
                 progressBar.setVisibility(View.GONE);
                 errorTextView.setVisibility(View.VISIBLE);
-                errorTextView.setText("Error: "+t.getMessage());
-                errorTextView.setTextColor(Color.RED);
-                Toast.makeText(getApplicationContext(),"Error: "+t.getMessage(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(),"Error: "+t.getMessage(), Toast.LENGTH_LONG).show();
+
+                //fetch offline data and display it.
+                fetchOffline();
             }
         });
     }
@@ -134,6 +144,49 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
+
+        //long click listener for refresh
+        changeThemeButton.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                restartApp();
+                return false;
+            }
+        });
     }
 
+    //this is to save data offline
+    private void saveOffline() {
+        StringBuilder str = null;
+        str = new StringBuilder();
+        for (Random random : readRandomData) {
+            str.append(random.getTitle()+"|");
+        }
+        String result = str.toString();
+        result=result.replace("'","*");
+        sqLiteDatabase.execSQL("INSERT INTO " + "offlineWiki" + " (Field1) " + " VALUES ('" +result+ "');");
+        sqLiteDatabase.close();
+        //Toast.makeText(getApplicationContext(),"String result: "+result, Toast.LENGTH_LONG).show();
+    }
+
+    private void fetchOffline() {
+        sqLiteDatabase.execSQL("CREATE TABLE IF NOT EXISTS " + "offlineWiki" + " (Field1 TEXT);");
+        Cursor c = sqLiteDatabase.rawQuery("SELECT * FROM " + "offlineWiki" , null);
+
+        int Column1 = c.getColumnIndex("Field1");
+        c.moveToFirst();
+        String result = new String();
+        if (c!=null) {
+            do {
+                result = c.getString(Column1);
+            }while(c.moveToNext());
+        }
+        result=result.replace("*","'");
+        //Toast.makeText(getApplicationContext(),"String result: "+result, Toast.LENGTH_LONG).show();
+        result=result.replace("|","\n");
+
+        errorTextView.setVisibility(View.VISIBLE);
+        errorTextView.setText("Cannot connect to network. The last fetched data which is stored offline is: \n"+result);
+
+    }
 }

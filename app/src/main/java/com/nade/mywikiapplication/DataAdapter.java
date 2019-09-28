@@ -10,8 +10,11 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.nade.mywikiapplication.models.Random;
+import com.nade.mywikiapplication.utils.SharedPref;
 
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class DataAdapter extends RecyclerView.Adapter<DataAdapter.ViewHolder> {
@@ -44,6 +47,7 @@ public class DataAdapter extends RecyclerView.Adapter<DataAdapter.ViewHolder> {
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder{
+
         private TextView tv_title;
         private ImageView wikiImage;
         public ViewHolder(View view) {
