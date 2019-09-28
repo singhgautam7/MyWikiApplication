@@ -7,15 +7,19 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.nade.mywikiapplication.api.JsonPlaceHolderApi;
 import com.nade.mywikiapplication.models.Random;
 import com.nade.mywikiapplication.models.WikiArticle;
+import com.nade.mywikiapplication.utils.SharedPref;
 
 import java.util.List;
 
@@ -31,10 +35,14 @@ public class MainActivity extends AppCompatActivity {
     private DataAdapter adapter;
     List<Random> readRandomData;
     private Button changeThemeButton;
+    private ProgressBar progressBar;
+    private TextView errorTextView;
+    SharedPref sharedPref;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        if (AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_YES) {
+        sharedPref = new SharedPref(this);
+        if (sharedPref.loadNightModeState()==true) {
             setTheme(R.style.DarkTheme);
         }
         else {
@@ -47,8 +55,14 @@ public class MainActivity extends AppCompatActivity {
         themeChangeFunc();
     }
 
+    //initialising views
     private void initViews() {
         changeThemeButton = (Button) findViewById(R.id.theme_button);
+        progressBar = (ProgressBar) findViewById(R.id.progressBar);
+        errorTextView = (TextView) findViewById(R.id.errorTextView);
+        progressBar.setVisibility(View.VISIBLE);
+        errorTextView.setVisibility(View.GONE);
+
         recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
         recyclerView.setHasFixedSize(true);
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getApplicationContext());
@@ -56,6 +70,7 @@ public class MainActivity extends AppCompatActivity {
         loadJSON();
     }
 
+    //loading json from url using retrofit
     private void loadJSON() {
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl("https://en.wikipedia.org/")
@@ -75,6 +90,7 @@ public class MainActivity extends AppCompatActivity {
                     return;
                 }
 
+                progressBar.setVisibility(View.GONE);
                 adapter = new DataAdapter(readRandomData);
                 recyclerView.setAdapter(adapter);
 
@@ -82,31 +98,37 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onFailure(Call<WikiArticle> call, Throwable t) {
                 Log.d("Error",t.getMessage());
+                progressBar.setVisibility(View.GONE);
+                errorTextView.setVisibility(View.VISIBLE);
+                errorTextView.setText("Error: "+t.getMessage());
+                errorTextView.setTextColor(Color.RED);
                 Toast.makeText(getApplicationContext(),"Error: "+t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
     }
 
+    //app restart for theming
     private void restartApp() {
         Intent i = new Intent(getApplicationContext(), MainActivity.class);
         startActivity(i);
         finish();
     }
 
+    //button on click function for theming
     private void themeChangeFunc() {
-        if(AppCompatDelegate.getDefaultNightMode()==AppCompatDelegate.MODE_NIGHT_YES) {
+        if(sharedPref.loadNightModeState()==true) {
             changeThemeButton.setBackgroundResource(R.drawable.ic_sun);
         }
         changeThemeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(AppCompatDelegate.getDefaultNightMode()==AppCompatDelegate.MODE_NIGHT_YES) {
-                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+                if(sharedPref.loadNightModeState()==true) {
+                    sharedPref.setNightModeState(false);
                     changeThemeButton.setBackgroundResource(R.drawable.ic_moon);
                     restartApp();
                 }
                 else {
-                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+                    sharedPref.setNightModeState(true);
                     changeThemeButton.setBackgroundResource(R.drawable.ic_sun);
                     restartApp();
                 }
