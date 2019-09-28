@@ -186,7 +186,7 @@ public class MainActivity extends AppCompatActivity {
         result=result.replace("|","\n");
 
         errorTextView.setVisibility(View.VISIBLE);
-        errorTextView.setText("Cannot connect to network. The last fetched data which is stored offline is: \n"+result);
+        errorTextView.setText("Cannot connect to network. The last fetched data which is stored offline is: \n\n"+result);
 
     }
 }
