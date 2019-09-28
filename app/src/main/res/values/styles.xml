@@ -1,12 +1,42 @@
 <resources>
 
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.NoActionBar">
+    <style name="AppTheme" parent="Theme.AppCompat.DayNight.NoActionBar">
         <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
         <item name="android:windowBackground">@color/colorBackground</item>
+        <item name="android:textColorPrimary">@color/textColorBlack</item>
+        <item name="android:statusBarColor">@color/statatusBarBackground</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="colorControlHighlight">@color/colorControlHighlight</item>
+        <item name="android:navigationBarColor">@color/colorBackground</item>
+        <item name="android:windowLightNavigationBar">true</item>
+
+        <item name="backgroundColor">@color/colorBackground</item>
+        <item name="textColor">@color/textColorBlack</item>
+        <item name="tintColor">@color/colorControlHighlight</item>
     </style>
 
+
+
+    <!-- Dark theme. -->
+    <style name="DarkTheme" parent="Theme.AppCompat.DayNight.NoActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+        <item name="android:windowBackground">@color/colorBackgroundDark</item>
+        <item name="android:textColorPrimary">@color/textColorWhite</item>
+        <item name="android:statusBarColor">@color/statatusBarBackgroundDark</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="colorControlHighlight">@color/colorControlHighlightDark</item>
+        <item name="android:navigationBarColor">@color/colorBackgroundDark</item>
+        <item name="android:windowLightNavigationBar">false</item>
+
+        <item name="backgroundColor">@color/colorBackgroundDark</item>
+        <item name="textColor">@color/textColorWhite</item>
+        <item name="tintColor">@color/colorControlHighlight</item>
+    </style>
 </resources>

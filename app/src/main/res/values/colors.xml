@@ -4,4 +4,12 @@
     <color name="colorPrimaryDark">#326fd1</color>
     <color name="colorAccent">#16e0ae</color>
     <color name="colorBackground">#ffffff</color>
+    <color name="textColorBlack">#444444</color>
+    <color name="statatusBarBackground">#ffffff</color>
+    <color name="colorControlHighlight">#22639eff</color>
+
+    <color name="colorBackgroundDark">#000000</color>
+    <color name="textColorWhite">#dddddd</color>
+    <color name="statatusBarBackgroundDark">#000000</color>
+    <color name="colorControlHighlightDark">#88639eff</color>
 </resources>
